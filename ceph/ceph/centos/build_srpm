@@ -146,7 +146,7 @@ if [ "x$BOOST_TAR" = "x" ]; then
 fi
 
 echo "ceph customization build_srpm : check boost tar file : $BOOST_TAR"
-if [ ! -f "$BOOST_TAR" ]; then
+if [ ! -e "$BOOST_TAR" ]; then
     echo "ERROR: ceph customization build_srpm : check boost tar file fails."
     exit 1
 fi
@@ -223,7 +223,7 @@ fi
 echo "ceph customization build_srpm : check whether need ceph tar file"
 TAR_NEEDED=0
 if [ "x$SRC_DIR" != "x" ]; then
-    if [ -f $TAR_PATH ]; then
+    if [ -e $TAR_PATH ]; then
         n=`find . -cnewer $TAR_PATH -and ! -path './.git*' \
                                     -and ! -path './build/*' \
                                     -and ! -path './.pc/*' \
@@ -292,7 +292,7 @@ for SPEC in `ls -1 $BUILD_DIR/SPECS`; do
     fi
 
     BUILD_NEEDED=0
-    if [ -f $SRPM_PATH ]; then
+    if [ -e $SRPM_PATH ]; then
         n=`find . -cnewer $SRPM_PATH | wc -l`
         if [ $n -gt 0 ]; then
             BUILD_NEEDED=1
