@@ -27,4 +27,3 @@ lsmod | grep -q '^rbd\>' && /usr/sbin/modprobe -r rbd
 lsmod | grep -q '^libceph\>' && /usr/sbin/modprobe -r libceph
 
 exit 0
-
