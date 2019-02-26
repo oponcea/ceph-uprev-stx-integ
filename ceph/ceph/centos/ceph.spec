@@ -73,26 +73,35 @@
         %%bcond_with babeltrace \
         %%bcond_without eventfd \
         %%bcond_without openldap }
- %define stx_assert_without() \
+
+%define stx_assert_without() \
     %{expand:%%{?with_%1: \
         %%{error:"%1" is enabled} \
         %%global stx_abort_build 1}}
- %define stx_assert_with() \
+
+%define stx_assert_with() \
     %{expand:%%{!?with_%1: \
         %%{error:"%1" is disabled} \
         %%global stx_abort_build 1}}
- %define stx_assert_package_yes() \
+
+%define stx_assert_package_yes() \
     %{expand:%%stx_assert_with %1}
- %define stx_assert_package_no() \
+
+%define stx_assert_package_no() \
     %{expand:%%stx_assert_without %1}
- %define stx_assert_package() \
+
+%define stx_assert_package() \
     %{expand:%%stx_assert_package_%2 %1}
- %define stx_assert_feature_yes() \
+
+%define stx_assert_feature_yes() \
     %{expand:%%stx_assert_with %1}
- %define stx_assert_feature_no() \
+
+%define stx_assert_feature_no() \
     %{expand:%%stx_assert_without %1}
- %define stx_assert_feature() \
+
+%define stx_assert_feature() \
     %{expand:%%stx_assert_feature_%2 %1}
+
 # StarlingX "configure" safeguards
 #
 %define stx_check_config \
@@ -140,16 +149,19 @@
     %stx_assert_package openldap yes \
     \
     %{?stx_abort_build:exit 1}
+
 # StarlingX configure utils
 #
 %define configure_feature() %{expand:%%{?with_%{1}:--enable-%{lua: print(rpm.expand("%{1}"):gsub("_","-"):match("^%s*(.*%S)"))}}%%{!?with_%{1}:--disable-%{lua: print(rpm.expand("%{1}"):gsub("_","-"):match("^%s*(.*%S)"))}}}
- %define configure_package() %{expand:%%{?with_%{1}:--with-%{lua: print(rpm.expand("%{1}"):gsub("_","-"):match("^%s*(.*%S)"))}}%%{!?with_%{1}:--without-%{lua: print(rpm.expand("%{1}"):gsub("_","-"):match("^%s*(.*%S)"))}}}
+%define configure_package() %{expand:%%{?with_%{1}:--with-%{lua: print(rpm.expand("%{1}"):gsub("_","-"):match("^%s*(.*%S)"))}}%%{!?with_%{1}:--without-%{lua: print(rpm.expand("%{1}"):gsub("_","-"):match("^%s*(.*%S)"))}}}
 # special case for tcmalloc: it's actually called tc
 #
 %define configure_package_tc %{expand:%%{?with_tcmalloc:--with-tc}%%{!?with_tcmalloc:--without-tc}}
+
 ###################################
 # END  StarlingX specific changes #
 ###################################
+
 %define _unpackaged_files_terminate_build 0
 %stx_rpmbuild_defaults
 %bcond_without stx
