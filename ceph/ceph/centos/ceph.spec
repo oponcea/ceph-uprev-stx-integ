@@ -173,6 +173,10 @@
 # so disable it here.
 %define debug_package %{nil}
 
+%global __os_install_post \
+    %{_rpmconfigdir}/brp-strip-shared %{__strip} \
+%{nil}
+
 %define optflags -O2
 
 %bcond_with python3
