@@ -56,18 +56,12 @@ class CephClient(object):
                  retry_count=CEPH_CLIENT_RETRY_COUNT,
                  retry_timeout=CEPH_CLIENT_RETRY_TIMEOUT_SEC):
         self.username = username
-        if password is None:
-            self._get_password()
-        else:
-            self.password = password
+        self.password = password
         self.check_certificate = True
-        self._get_service_url()
-        LOG.info(
-            'created ceph client: username={0.username}, '
-            'password={0.password}, service_url={0.service_url}'.format(self))
+        self.service_url = None
         # TODO: fix certificates
         self._disable_certificate_checks()
-        self._refresh_session()
+        self.session = None
         self.retry_count = retry_count
         self.retry_timeout = retry_timeout
 
@@ -158,6 +152,12 @@ class CephClient(object):
                 raise CephMgrJsonError(outb)
 
     def _request(self, prefix, *args, **kwargs):
+        if not self.password:
+            self._get_password()
+        if not self.service_url:
+            self._get_service_url()
+        if not self.session:
+            self._refresh_session()
         format = kwargs.get('body', 'json').lower()
         if format not in API_SUPPORTED_RESPONSE_FORMATS:
             raise CephClientFormatNotSupported(
