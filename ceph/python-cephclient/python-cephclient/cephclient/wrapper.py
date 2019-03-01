@@ -80,6 +80,9 @@ class CephWrapper(CephClient):
         return super(CephWrapper, self).osd_rm(
             ids=ids, body=body, timeout=timeout)
 
+    def osd_remove(self, ids, body='json', timeout=None):
+        return self.osd_rm(ids, body=body, timeout=timeout)
+
     OSD_CRUSH_TREE_CONVERTED_FIELDS = [
         'crush_weight', 'depth', 'id', 'name', 'type', 'type_id']
 
