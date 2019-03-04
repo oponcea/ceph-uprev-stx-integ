@@ -1106,6 +1106,7 @@ mkdir build
 cd build
 cmake .. \
     -DCMAKE_INSTALL_PREFIX=%{_prefix} \
+    -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_LIBDIR=%{_libdir} \
     -DCMAKE_INSTALL_LIBEXECDIR=%{_libexecdir} \
     -DCMAKE_INSTALL_SYSTEMD_SERVICEDIR=%{_prefix}/lib/systemd/system \
