@@ -12,15 +12,6 @@ outfile="ceph-$version"
 
 echo "version $version"
 
-# switch submodule to specific commit id
-echo "updating submodules..."
-force=$(if git submodule usage 2>&1 | grep --quiet 'update.*--force'; then echo --force ; fi)
-if ! git submodule update $force --init --recursive; then
-    echo "Error: could not initialize submodule projects"
-    echo "  Network connectivity might be required."
-    exit 1
-fi
-
 # boost preparatory work
 prepare_boost() {
     boost_version=$1
