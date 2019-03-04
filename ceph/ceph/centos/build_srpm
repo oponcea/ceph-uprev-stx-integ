@@ -146,17 +146,39 @@ if [ "x$BOOST_TAR" = "x" ]; then
 fi
 
 echo "ceph customization build_srpm : check boost tar file : $BOOST_TAR"
-if [ ! -e "$BOOST_TAR" ]; then
+if [ ! -e "$DOWNLOADS_DIR/$BOOST_TAR" ]; then
     echo "ERROR: ceph customization build_srpm : check boost tar file fails."
     exit 1
 fi
 
 echo "ceph customization build_srpm : copy boost tar file from $BOOST_TAR to $SRC_DIR"
-cp $BOOST_TAR $SRC_DIR
-if [ $? -ne 0 ]; then
-    echo "ERROR: ceph customization build_srpm : copy $BOOST_TAR fails."
+if [ ! -f "$SRC_DIR/$BOOST_TAR" ]; then
+    cp $DOWNLOADS_DIR/$BOOST_TAR $SRC_DIR
+    if [ $? -ne 0 ]; then
+        echo "ERROR: ceph customization build_srpm : copy $BOOST_TAR fails."
+        exit 1
+    fi
+fi
+
+echo "ceph submodules archive source : copy and unzip to $SRC_DIR"
+if [ "x$SUBMODULE_LIST" = "x" ]; then
+    echo "ERROR: ceph customization build_srpm : check ceph submodule archive source fails."
     exit 1
 fi
+if [ "x$SUBMODULE_PATH_LIST" = "x" ]; then
+    echo "ERROR: ceph customization build_srpm: check ceph submodule archive path fails."
+    exit 1
+fi
+SUBMODULE_ARRAY=(${SUBMODULE_LIST//,/})
+SUBMODULE_PATH_ARRAY=(${SUBMODULE_PATH_LIST//,/})
+for i in "${!SUBMODULE_ARRAY[@]}";
+do
+    if [ ! -f "${SUBMODULE_PATH_ARRAY[$i]}" ]; then
+        echo "Index: $i, SUBMODULE: ${SUBMODULE_ARRAY[$i]}, SUBMODULE_PATH: ${SUBMODULE_PATH_ARRAY[$i]}"
+        mkdir -p "${SUBMODULE_PATH_ARRAY[$i]}"
+        tar zxvf "${SUBMODULE_ARRAY[$i]}" -C "${SUBMODULE_PATH_ARRAY[$i]}" --strip-components 1
+    fi
+done
 
 temp_dir=$PWD
 cp centos/ceph-preparation $SRC_DIR/
