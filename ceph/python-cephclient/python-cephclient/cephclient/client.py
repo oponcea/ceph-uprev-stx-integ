@@ -35,6 +35,7 @@ CEPH_MON_RESTFUL_USER = 'admin'
 CEPH_MON_RESTFUL_SERVICE = 'restful'
 CEPH_CLIENT_RETRY_COUNT = 2
 CEPH_CLIENT_RETRY_TIMEOUT_SEC = 5
+CEPH_CLI_TIMEOUT_SEC = 5
 API_SUPPORTED_RESPONSE_FORMATS = [
     'text', 'json', 'xml', 'binary'
 ]
@@ -77,7 +78,9 @@ class CephClient(object):
     def _get_password(self):
         try:
             output = subprocess.check_output(
-                'ceph restful list-keys',
+                ('ceph restful list-keys '
+                 '--connect-timeout {}').format(
+                    CEPH_CLI_TIMEOUT_SEC),
                 shell=True)
         except subprocess.CalledProcessError as e:
             raise CephMonRestfulListKeysError(str(e))
@@ -93,7 +96,10 @@ class CephClient(object):
     def _get_service_url(self):
         try:
             output = subprocess.check_output(
-                'ceph mgr dump', shell=True)
+                ('ceph mgr dump'
+                 '--connect-timeout {}').format(
+                    CEPH_CLI_TIMEOUT_SEC),
+                shell=True)
         except subprocess.CalledProcessError as e:
             raise CephMgrDumpError(str(e))
         try:
