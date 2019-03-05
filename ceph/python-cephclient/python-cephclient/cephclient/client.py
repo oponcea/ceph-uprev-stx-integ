@@ -96,7 +96,7 @@ class CephClient(object):
     def _get_service_url(self):
         try:
             output = subprocess.check_output(
-                ('ceph mgr dump'
+                ('ceph mgr dump '
                  '--connect-timeout {}').format(
                     CEPH_CLI_TIMEOUT_SEC),
                 shell=True)
