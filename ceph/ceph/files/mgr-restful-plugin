@@ -17,7 +17,7 @@ DESC="mgr-restful-plugin"
 DAEMON="/usr/bin/ceph-mgr"
 RUNDIR="/var/run/ceph/mgr"
 # KEEP PIDFILE to be tracked by SM: https://review.openstack.org/#/c/634120
-PIDFILE="${RUNDIR}/../mgr-restful-plugin.pid"
+PIDFILE="${RUNDIR}/mgr-restful-plugin.pid"
 user_name=`hostname`
 MGR_ARGS="-f --cluster ceph --id ${user_name}"
 # The default 8003 port is already used by StarlingX "lsof -i :8003"
@@ -133,10 +133,9 @@ start_restful_plugin()
 
     #ceph config set mgr mgr/restful/${user_name}/server_port $PORT
     ceph config set mgr mgr/restful/server_port $PORT
-    ceph restful create-self-signed-cert
     ceph restful create-key admin
+    ceph restful create-self-signed-cert
 #    ceph mgr module enable restful
-    ceph restful restart
     restful_check
     rst=$?
     if [ $rst -eq 0 ]; then
