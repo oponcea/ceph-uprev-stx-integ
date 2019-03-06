@@ -1,6 +1,6 @@
 [Unit]
 Description=Ceph MGR RESTful API Plugin
-After=network.target ceph.target
+After=network.target
 
 [Service]
 Type=forking
