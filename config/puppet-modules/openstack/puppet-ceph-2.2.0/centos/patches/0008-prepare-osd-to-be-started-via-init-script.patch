@@ -1,0 +1,59 @@
+From 13e19a90a8d4a33cad3ee48726798c0adc4d206c Mon Sep 17 00:00:00 2001
+From: Daniel Badea <daniel.badea@windriver.com>
+Date: Mon, 11 Mar 2019 11:22:06 +0000
+Subject: [PATCH] prepare osd to be started via init script
+
+---
+ manifests/osd.pp | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
+
+diff --git a/manifests/osd.pp b/manifests/osd.pp
+index f7e4413..c51a445 100644
+--- a/manifests/osd.pp
++++ b/manifests/osd.pp
+@@ -54,7 +54,7 @@ define ceph::osd (
+   $cluster = undef,
+   $cluster_uuid = undef,
+   $uuid = undef,
+-  $osd__id = "-1",
++  $osdid = undef,
+   $exec_timeout = $::ceph::params::exec_timeout,
+   $selinux_file_context = 'ceph_var_lib_t',
+   $fsid = undef,
+@@ -79,6 +79,10 @@ define ceph::osd (
+       $uuid_option = "--osd-uuid ${uuid}"
+     }
+ 
++    if $osdid {
++      $osdid_option = "--osd-id ${osdid}"
++    }
++
+     if $ensure == present {
+ 
+       $ceph_check_udev = "ceph-osd-check-udev-${name}"
+@@ -132,14 +136,15 @@ test -z $(ceph-disk list $(readlink -f ${data}) | egrep -o '[0-9a-f]{8}-([0-9a-f
+       # ceph-disk: prepare should be idempotent http://tracker.ceph.com/issues/7475
+       exec { $ceph_prepare:
+ 
+-         command   => "/bin/true # comment to satisfy puppet syntax requirements
++        command   => "/bin/true # comment to satisfy puppet syntax requirements
+ set -ex
+-if [ \"$osd__id\" = \"-1\" ]; then
+-  true
+-else
+-  ceph osd rm osd.${osd__id} || true
+-fi
+-  /usr/sbin/ceph-disk --verbose --log-stdout prepare --filestore ${cluster_uuid_option} ${uuid_option} --fs-type xfs --zap-disk $(readlink -f ${data}) $(readlink -f ${journal})
++ceph-disk --verbose --log-stdout prepare --filestore  ${cluster_uuid_option} ${uuid_option} ${osdid_option} --fs-type xfs --zap-disk $(readlink -f ${data}) $(readlink -f ${journal})
++mkdir -p /var/lib/ceph/osd/ceph-${osdid}
++ceph auth del osd.${osdid} || true
++mount $(readlink -f ${data})1 /var/lib/ceph/osd/ceph-${osdid}
++ceph-osd --id ${osdid} --mkfs --mkkey --mkjournal
++ceph auth add osd.${osdid} osd 'allow *' mon 'allow rwx' -i /var/lib/ceph/osd/ceph-${osdid}/keyring
++umount /var/lib/ceph/osd/ceph-${osdid}
+ ",
+         # We don't want to erase the disk if:
+         # 1. There is already ceph data on the disk for our cluster AND
+-- 
+1.8.3.1
+

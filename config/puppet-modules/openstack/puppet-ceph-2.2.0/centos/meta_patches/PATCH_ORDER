@@ -7,3 +7,4 @@
 0007-Add-StarlingX-specific-restart-command-for-Ceph-moni.patch
 0001-integrate-create-filestore-OSD-patch.patch
 0002-add-osd__id-paramter-in-ceph-osd-puppet.patch
+0008-prepare-osd-to-be-started-via-init-script.patch
