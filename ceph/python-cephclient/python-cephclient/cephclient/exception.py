@@ -54,7 +54,7 @@ class CephClientResponseFormatNotImplemented(CephClientException):
 
 
 class CephClientFunctionNotImplemented(CephClientException):
-    message = ("Function not implemented: {}")
+    message = "Function '{name}' is not implemented"
 
 
 class CephClientInvalidChoice(CephClientException):
