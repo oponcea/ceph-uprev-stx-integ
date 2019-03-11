@@ -3,13 +3,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+import six
 
 from client import CephClient
 from exception import CephClientFunctionNotImplemented
 from exception import CephClientInvalidOsdIdValue
-from exception import CephClientInvalidOsdIdType
 from exception import CephClientTypeError
-import six
 
 
 class CephWrapper(CephClient):
@@ -17,8 +16,40 @@ class CephWrapper(CephClient):
     def __init__(self, endpoint=''):
         super(CephWrapper, self).__init__()
 
-    def auth_import(self, file, body='json'):
-        raise CephClientFunctionNotImplemented('auth_import')
+    def auth_import(self, body='json', timeout=None):
+        raise CephClientFunctionNotImplemented(name='auth_import')
+
+    def _sanitize_osdid_to_str(self, _id):
+        if isinstance(_id, six.string_types):
+            prefix = 'osd.'
+            if not _id.startswith(prefix):
+                try:
+                    int(_id)
+                except ValueError:
+                    raise CephClientInvalidOsdIdValue(
+                        osdid=_id)
+                _id = prefix + _id
+        elif isinstance(_id, six.integer_types):
+            _id = 'osd.{}'.format(_id)
+        else:
+            raise CephClientInvalidOsdIdValue(
+                osdid=_id)
+        return _id
+
+    def _sanitize_osdid_to_int(self, _id):
+        if isinstance(_id, six.string_types):
+            prefix = 'osd.'
+            if _id.startswith(prefix):
+                _id = _id[len(prefix):]
+            try:
+                _id = int(_id)
+            except ValueError:
+                raise CephClientInvalidOsdIdValue(
+                    osdid=_id)
+        elif not isinstance(_id, six.integer_types):
+            raise CephClientInvalidOsdIdValue(
+                osdid=_id)
+        return _id
 
     def osd_create(self, uuid, body='json', timeout=None, params=None):
         """
@@ -33,16 +64,7 @@ class CephWrapper(CephClient):
         """
         kwargs = dict(uuid=uuid, body=body, timeout=timeout)
         try:
-            osdid = params['id']
-            if isinstance(osdid, six.string_types):
-                prefix = 'osd.'
-                if not osdid.startswith(prefix):
-                    raise CephClientInvalidOsdIdValue(
-                        osdid=osdid)
-                osdid = int(osdid[len(prefix):])
-            elif not isinstance(osdid, six.integer_types):
-                raise CephClientInvalidOsdIdType(osdid)
-            kwargs['id'] = int(osdid)
+            kwargs['id'] = self._sanitize_osdid_to_int(params['id'])
         except (KeyError, TypeError):
             pass
         return self._request('osd create', **kwargs)
@@ -52,36 +74,27 @@ class CephWrapper(CephClient):
         remove osd(s) <id> [<id>...], or use <any|all> to remove all osds
         """
         if isinstance(ids, list):
-            _ids = []
-            for osdid in ids:
-                if isinstance(osdid, six.string_types):
-                    prefix = 'osd.'
-                    if not osdid.startswith(prefix):
-                        raise CephClientInvalidOsdIdValue(
-                            osdid=osdid)
-                elif isinstance(osdid, six.integer_types):
-                    osdid = 'osd.{}'.format(osdid)
-                else:
-                    raise CephClientInvalidOsdIdType(osdid)
-                _ids.append(osdid)
-            ids = _ids
-        elif isinstance(ids, six.string_types):
-            prefix = 'osd.'
-            if not ids.startswith(prefix):
-                raise CephClientInvalidOsdIdValue(
-                    osdid=ids)
-        elif isinstance(ids, six.integer_types):
-            ids = 'osd.{}'.format(ids)
+            ids = [self._sanitize_osdid_to_str(_id)
+                   for _id in ids]
         else:
-            raise CephClientTypeError(
-                        name='ids',
-                        actual=type(ids),
-                        expected='integer, string or lists thereof')
+            ids = self._sanitize_osdid_to_str(ids)
         return super(CephWrapper, self).osd_rm(
             ids=ids, body=body, timeout=timeout)
 
     def osd_remove(self, ids, body='json', timeout=None):
         return self.osd_rm(ids, body=body, timeout=timeout)
+
+    def osd_down(self, ids, body='json', timeout=None):
+        """
+        set osd(s) <id> [<id>...] down, or use <any|all> to set all osds down
+        """
+        if isinstance(ids, list):
+            ids = [self._sanitize_osdid_to_str(_id)
+                   for _id in ids]
+        else:
+            ids = self._sanitize_osdid_to_str(ids)
+        return super(CephWrapper, self).osd_down(
+            ids=ids, body=body, timeout=timeout)
 
     OSD_CRUSH_TREE_CONVERTED_FIELDS = [
         'crush_weight', 'depth', 'id', 'name', 'type', 'type_id']
@@ -231,9 +244,9 @@ class CephWrapper(CephClient):
         if caps:
             if not isinstance(caps, dict):
                 raise CephClientTypeError(
-                            name='caps',
-                            actual=type(caps),
-                            expected=dict)
+                    name='caps',
+                    actual=type(caps),
+                    expected=dict)
             _caps = []
             for key, value in caps.iteritems():
                 _caps.append(key)
