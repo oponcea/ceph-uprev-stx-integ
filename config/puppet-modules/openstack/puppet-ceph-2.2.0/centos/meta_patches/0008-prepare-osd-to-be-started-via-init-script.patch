@@ -1,0 +1,32 @@
+From 77804982b80ebaadd98a5d03445bd83b1cae69e8 Mon Sep 17 00:00:00 2001
+From: Daniel Badea <daniel.badea@windriver.com>
+Date: Mon, 11 Mar 2019 11:29:38 +0000
+Subject: [PATCH] prepare osd to be started via init script
+
+---
+ SPECS/puppet-ceph.spec | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/SPECS/puppet-ceph.spec b/SPECS/puppet-ceph.spec
+index 901f22c..48fd298 100644
+--- a/SPECS/puppet-ceph.spec
++++ b/SPECS/puppet-ceph.spec
+@@ -17,6 +17,7 @@ Patch0006:      0006-ceph-disk-prepare-invalid-data-disk-value.patch
+ Patch0007:      0007-Add-StarlingX-specific-restart-command-for-Ceph-moni.patch
+ Patch0008:      0001-create-filestore-OSD-in-ceph-v13.2.2.patch
+ Patch0009:      0002-add-osd_id-to-remove-osd.-osd_id-after-config-ceph.c.patch
++Patch0010:      0008-prepare-osd-to-be-started-via-init-script.patch
+ 
+ BuildArch:      noarch
+ 
+@@ -41,6 +42,7 @@ Community Developed Ceph Module
+ %patch0007 -p1
+ %patch0008 -p1
+ %patch0009 -p1
++%patch0010 -p1
+ 
+ find . -type f -name ".*" -exec rm {} +
+ find . -size 0 -exec rm {} +
+-- 
+1.8.3.1
+
