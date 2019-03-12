@@ -53,6 +53,9 @@ class Config(object):
         self.service_lock = os.path.join(
             self.ceph_mgr_rundir,
             '{}.lock'.format(self.service_name))
+        self.service_pidfile = os.path.join(
+            '/var/run/ceph',
+            '{}.pid'.format(self.service_name))
         self.ceph_name = socket.gethostname()
         self.service_port = 5001
         self.timeout_seconds = 15
@@ -175,6 +178,9 @@ class ServiceMonitor(object):
         self.skip_ticks = None
 
     def run(self):
+        LOG.info('create service pid file')
+        with open(CONFIG.service_pidfile) as pid_file:
+            pid_file.write(str(os.getpid()))
         LOG.info('start service monitor loop')
         try:
             self.socket.listen(1)
