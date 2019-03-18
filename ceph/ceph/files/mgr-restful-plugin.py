@@ -179,7 +179,7 @@ class ServiceMonitor(object):
 
     def run(self):
         LOG.info('create service pid file')
-        with open(CONFIG.service_pidfile) as pid_file:
+        with open(CONFIG.service_pidfile, 'w') as pid_file:
             pid_file.write(str(os.getpid()))
         LOG.info('start service monitor loop')
         try:
