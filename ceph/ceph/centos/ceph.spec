@@ -278,10 +278,9 @@ Source5:  ceph.conf
 Source6:  ceph-manage-journal.py
 Source7:  ceph.service
 Source8:  mgr-restful-plugin.service
-Source9:  ceph-radosgw.service
-Source10: stx_git_version
-Source11: ceph-preshutdown.sh
-Source12: starlingx-docker-override.conf
+Source9: stx_git_version
+Source10: ceph-preshutdown.sh
+Source11: starlingx-docker-override.conf
 
 %if 0%{?suse_version}
 # _insert_obs_source_lines_here
@@ -1037,7 +1036,7 @@ python-rbd, python-rgw or python-cephfs instead.
 # StarlingX :Copy the .git_version file needed by the build
 #     This commit SHA is from the upstream src rpm which is the base of this repo branch
 #     TODO: Add a commit hook to update to our latest commit SHA
-cp %{SOURCE10} %{_builddir}/%{name}-%{version}/src/.git_version
+cp %{SOURCE9} %{_builddir}/%{name}-%{version}/src/.git_version
 
 %build
 
@@ -1245,9 +1244,8 @@ install -m 640 %{SOURCE5} %{buildroot}%{_sysconfdir}/ceph/
 install -m 700 %{SOURCE6} %{buildroot}%{_sbindir}/ceph-manage-journal
 install -m 644 %{SOURCE7} %{buildroot}%{_unitdir}/ceph.service
 install -m 644 %{SOURCE8} %{buildroot}%{_unitdir}/mgr-restful-plugin.service
-install -m 644 %{SOURCE9} %{buildroot}%{_unitdir}/ceph-radosgw.service
-install -m 700 %{SOURCE11} %{buildroot}%{_sbindir}/ceph-preshutdown.sh
-install -D -m 644 %{SOURCE12} %{buildroot}%{_unitdir}/docker.service.d/starlingx-docker-override.conf
+install -m 700 %{SOURCE10} %{buildroot}%{_sbindir}/ceph-preshutdown.sh
+install -D -m 644 %{SOURCE11} %{buildroot}%{_unitdir}/docker.service.d/starlingx-docker-override.conf
 
 install -m 750 src/init-radosgw %{buildroot}/%{_initrddir}/ceph-radosgw
 install -m 750 src/init-rbdmap %{buildroot}/%{_initrddir}/rbdmap
@@ -1320,7 +1318,6 @@ rm -rf %{buildroot}
 %if %{with stx}
 %{_unitdir}/ceph.service
 %{_unitdir}/mgr-restful-plugin.service
-%{_unitdir}/ceph-radosgw.service
 %endif
 %if 0%{with python2}
 %{python_sitelib}/ceph_detect_init*
