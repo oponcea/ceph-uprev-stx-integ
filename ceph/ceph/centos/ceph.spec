@@ -1248,6 +1248,7 @@ install -m 700 %{SOURCE10} %{buildroot}%{_sbindir}/ceph-preshutdown.sh
 install -D -m 644 %{SOURCE11} %{buildroot}%{_unitdir}/docker.service.d/starlingx-docker-override.conf
 
 install -m 750 src/init-radosgw %{buildroot}/%{_initrddir}/ceph-radosgw
+sed -i '/### END INIT INFO/a SYSTEMCTL_SKIP_REDIRECT=1' %{buildroot}/%{_initrddir}/ceph-radosgw
 install -m 750 src/init-rbdmap %{buildroot}/%{_initrddir}/rbdmap
 install -d -m 750 %{buildroot}/var/log/radosgw
 %endif
