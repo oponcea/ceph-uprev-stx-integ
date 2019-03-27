@@ -133,7 +133,7 @@ class CephWrapper(CephClient):
                 trees.append(
                     self._osd_crush_tree_populate_tree(
                         root, node_map))
-        _body['output'] = trees
+            _body['output'] = trees
         return response, _body
 
     def _osd_crush_rule_by_ruleset(self, ruleset, timeout=None):
